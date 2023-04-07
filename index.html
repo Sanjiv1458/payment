@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Razorpay</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+  </head>
+
+  <body>
+    <h1 style="text-align: center;padding: 50px;">Payment</h1>
+    <div class="container">
+      <form>
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" class="form-control" id="name" name="name" />
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" class="form-control" id="email" name="email" />
+        </div>
+        <div class="form-group">
+          <label for="contact">Mobile No.</label>
+          <input type="tel" class="form-control" id="contact" name="contact" />
+        </div>
+        <div class="form-group">
+          <label for="amount">Amount</label>
+          <input type="number" class="form-control" id="amount" name="amount" />
+        </div>
+        <button type="button" class="btn btn-primary" id="payBtn">
+          Pay Now
+        </button>
+      </form>
+    </div>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+      const payBtn = document.getElementById("payBtn");
+      payBtn.addEventListener("click", function () {
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+        const contact = document.getElementById("contact").value;
+        const amount = document.getElementById("amount").value;
+
+        fetch("/payment", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: name,
+            email: email,
+            contact: contact,
+            amount: amount
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            const options = {
+              key: "rzp_test_d4FYg6aMhU82lt",
+              amount: data.amount,
+              name: "Parking System",
+              description: "Book Your Slot",
+              image: "https://w7.pngwing.com/pngs/42/901/png-transparent-blue-car-illustration-car-park-gatwick-airport-south-terminal-long-stay-parking-cophall-parking-gatwick-better-choice-parking-directions-cophall-parking-gatwick-miscellaneous-logo-parking.png",
+              order_id: data.id,
+              theme: {color: "#BA55D3"},
+              handler: function (response) {
+                alert(response.razorpay_payment_id);
+              },
+              prefill: {
+                name: name,
+                email: email,
+                contact: contact
+              },
+            };
+            const rzp1 = new Razorpay(options);
+            rzp1.open();
+          })
+          .catch((error) => console.error(error));
+      });
+    </script>
+    <script src="app.js"></script>
+  </body>
+</html>
